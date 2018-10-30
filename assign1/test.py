@@ -28,7 +28,7 @@ def get_batch(f, batch_size=10):
 	expect = np.vectorize(f)(inp)
 	return torch.from_numpy(inp), torch.from_numpy(expect)
 
-def fit(func, Net, inp, expect, train_config):
+def fit(func, Net, inp, expect, train_config, save_name=''):
 	net = Net().double()
 	optimizer = optim.Adam(net.parameters(), 
 					lr = train_config["learning_rate"])
@@ -43,6 +43,8 @@ def fit(func, Net, inp, expect, train_config):
 		if i % 10000 == 0:
 			print (loss)
 
+	if save_name:
+		torch.save(net1, save_name)
 	return net
 
 def get_square_data():
@@ -60,7 +62,7 @@ def test(net, test_data, f, plt_config):
 	plt.plot(numpy_x, list(map(f, numpy_x)), color='blue', label='expecting', lw='1')
 
 	plt.legend()
-	plt.set_title(plt_config["pic_name"])
+	plt.set_title(plt_config["pic_title"])
 	plt.savefig(plt_config["pic_name"])
 
 
@@ -75,14 +77,16 @@ if __name__ == '__main__':
 	net = fit(square, DoubleReluNet, inp, expect, {
 		"learning_rate": 0.01,
 		"epoch_number": 100000 
-		})
+		}, save_name="square.pkl")
 
 	test(net, inp, square, {
-		"pic_name" : "y = x ^ 2: Train Fitting"
+		"pic_name" : "y = x ^ 2: Train Fitting",
+		"pic_title": "y = x ^ 2: Train Fitting"
 		})
 	test_data = get_square_data()
 	test(net, test_data, square, {
-		"pic_name" : "y = x ^ 2: Test Predicting"
+		"pic_name" : "y = x ^ 2: Test Predicting",
+		"pic_title": "y = x ^ 2: Test Predicting"
 		})
 	# fit(sino, net)
 	
