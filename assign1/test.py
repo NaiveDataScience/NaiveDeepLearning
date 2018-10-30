@@ -24,8 +24,10 @@ class DoubleReluNet(nn.Module):
 
 def get_batch(f, batch_size=10):
 	inp = np.random.randn(batch_size, 1).astype(np.float64) * 10
-	print (inp)
+	inp.sort(axis=0)
 	expect = np.vectorize(f)(inp)
+	print(inp)
+	print(expect)
 	return torch.from_numpy(inp), torch.from_numpy(expect)
 
 def fit(func, Net, inp, expect, train_config, save_name=''):
@@ -44,7 +46,7 @@ def fit(func, Net, inp, expect, train_config, save_name=''):
 			print (loss)
 
 	if save_name:
-		torch.save(net1, save_name)
+		torch.save(net, save_name)
 	return net
 
 def get_square_data():
@@ -58,11 +60,11 @@ def test(net, test_data, f, plt_config):
 	numpy_x = test_data.detach().numpy().T[0]
 
 	plt.figure(figsize=(12, 8))
-	plt.plot(numpy_x, numpy_y, color='red', label='fitting', lw='0.3')
-	plt.plot(numpy_x, list(map(f, numpy_x)), color='blue', label='expecting', lw='1')
+	plt.plot(numpy_x, numpy_y, color='red', label='fitting', lw='2')
+	plt.plot(numpy_x, list(map(f, numpy_x)), color='blue', label='expecting', lw='2')
 
 	plt.legend()
-	plt.set_title(plt_config["pic_title"])
+	plt.title(plt_config["pic_title"])
 	plt.savefig(plt_config["pic_name"])
 
 
@@ -80,13 +82,15 @@ if __name__ == '__main__':
 		}, save_name="square.pkl")
 
 	test(net, inp, square, {
-		"pic_name" : "y = x ^ 2: Train Fitting",
-		"pic_title": "y = x ^ 2: Train Fitting"
+		"pic_name" : "y = x ^ 2: Train",
+		"pic_title": "y = x ^ 2: Train"
 		})
+
 	test_data = get_square_data()
+	net = torch.load("square.pkl")
 	test(net, test_data, square, {
-		"pic_name" : "y = x ^ 2: Test Predicting",
-		"pic_title": "y = x ^ 2: Test Predicting"
+		"pic_name" : "y = x ^ 2: Test",
+		"pic_title": "y = x ^ 2: Test"
 		})
 	# fit(sino, net)
 	
